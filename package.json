@@ -1,0 +1,21 @@
+{
+  "name": "al-cine-con-papa",
+  "version": "2.0.0",
+  "description": "Sistema de control de ingresos para el evento 'Al cine con papa' del Colegio El Educador.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+
+  "keywords": ["ticket", "barcode", "cinema", "school", "fathers-day"],
+  "author": "Colegio El Educador",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.2",
+    "mongoose": "^8.4.1",
+    "ws": "^8.16.0"
+  }
+}

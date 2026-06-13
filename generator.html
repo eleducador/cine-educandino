@@ -228,7 +228,7 @@
           </div>
 
           <!-- Tickets list -->
-          <div class="card admin-only" style="margin-top:1.25rem;">
+          <div class="card" style="margin-top:1.25rem;">
             <div class="tickets-list-header">
               <div class="card-title" style="margin:0;">📋 Todos los Boletos</div>
               <span class="badge badge-gold" id="total-badge">0</span>
@@ -570,21 +570,17 @@
       document.getElementById('pt-id').textContent = `ID: ${compraId}`;
 
       const container = document.getElementById('pt-qr-container');
-      if (b.estado === 'reservado') {
-        container.innerHTML = '<div style="color:var(--text-muted); font-size:0.8rem; padding:1rem; border:1px dashed #ccc; border-radius:8px; margin-top:1rem;">El código QR se generará al confirmar el pago.</div>';
-      } else {
-        container.innerHTML = '<div id="qr-render"></div>';
-        try {
-          if (qrInstance) { qrInstance.clear(); qrInstance = null; }
-          const qrPayload = JSON.stringify({ v:1, app:'alcinepapa', ids: boletosGroup.map(bol => bol.id) });
-          qrInstance = new QRCode(document.getElementById('qr-render'), {
-            text: qrPayload,
-            width: 150, height: 150,
-            colorDark: '#111', colorLight: '#fff',
-            correctLevel: QRCode.CorrectLevel.M
-          });
-        } catch {}
-      }
+      container.innerHTML = '<div id="qr-render"></div>';
+      try {
+        if (qrInstance) { qrInstance.clear(); qrInstance = null; }
+        const qrPayload = JSON.stringify({ v:1, app:'alcinepapa', ids: boletosGroup.map(bol => bol.id) });
+        qrInstance = new QRCode(document.getElementById('qr-render'), {
+          text: qrPayload,
+          width: 150, height: 150,
+          colorDark: '#111', colorLight: '#fff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      } catch {}
       
       document.getElementById('btn-whatsapp').disabled = false;
       document.getElementById('btn-whatsapp').onclick = () => compartirWhatsAppId(compraId);
@@ -756,6 +752,8 @@
         return;
       }
 
+      const isAdmin = isLoggedIn() && hasPermiso('separarAsientos');
+
       el.innerHTML = filtered.slice(0, 100).map(group => {
         const b = group[0];
         const sala = s.config.salas.find(sl => sl.id === b.sala);
@@ -765,13 +763,14 @@
         if (b.estado === 'reservado') estadoBadge = '<span class="badge badge-gold" style="background:rgba(245,197,24,0.1);color:#f5c518;border:1px solid #f5c518;">⏱️ Reservado</span>';
         
         const seatStr = group.map(bol => bol.asiento ? `${filaLabel(bol.asiento.fila)}${bol.asiento.col + 1}` : '').filter(Boolean).join(', ');
+        const displayTitle = isAdmin ? `${b.estudiante || 'Estudiante'} ${b.grado ? '(' + b.grado + ')' : ''} · ${sala ? sala.nombre : b.sala}` : `Reservación Privada · ${sala ? sala.nombre : b.sala}`;
         
         return `
           <div class="ticket-card" onclick="showTicketPreview('${b.compraId}')">
             <span class="tc-icon">${icon}</span>
             <div class="tc-info">
               <div class="tc-id">${b.compraId}</div>
-              <div class="tc-title">${b.estudiante || 'Estudiante'} ${b.grado ? '(' + b.grado + ')' : ''} · ${sala ? sala.nombre : b.sala}</div>
+              <div class="tc-title">${displayTitle}</div>
               <div class="tc-sub">${pel ? pel.titulo : '—'}</div>
               <div class="tc-seat">${group.length} Asientos: ${seatStr}</div>
             </div>
